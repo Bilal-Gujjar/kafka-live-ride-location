@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Real-Time Location Tracking</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_API_MAP_KEY"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel - Real-Time Location Tracking</h1>
+  <div id="map"></div>
+
+  <script>
+    let map, marker;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 0, lng: 0 }, // Initial position (could be set dynamically)
+        zoom: 15
+      });
+    }
+
+    // Initialize map
+    initMap();
+
+    const socket = io();
+
+    socket.on('locationUpdate', (data) => {
+      const { latitude, longitude, userId } = data;
+
+      // If marker exists, update its position; otherwise, create a new marker
+      if (marker) {
+        marker.setPosition({ lat: latitude, lng: longitude });
+      } else {
+        marker = new google.maps.Marker({
+          position: { lat: latitude, lng: longitude },
+          map: map,
+          title: `User: ${userId}`
+        });
+      }
+
+      // Center map on the new location
+      map.setCenter({ lat: latitude, lng: longitude });
+    });
+  </script>
+</body>
+</html>
